@@ -49,10 +49,12 @@ enum class TimeUnits(
     private val v2_4: String = "",
     private val ve: String = ""
 ) {
-    SECOND,
+    SECOND("секунду", "секунды", "секунд"),
     MINUTE("минуту", "минуты", "минут"),
     HOUR("час", "часа", "часов"),
     DAY("день", "дня", "дней");
+
+    fun plural(value:Int): String = value.toString() + " " + declensionForm(value.toLong())
 
     fun declensionForm(amount: Long): String = if( amount%100 in 10..19 ) ve else when(amount%10){
         1L           -> v1
