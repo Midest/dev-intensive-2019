@@ -3,7 +3,7 @@ package ru.skillbranch.devintensive
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun doneEditorListener(editor: EditText){
-        //editor.setRawInputType(InputType.TYPE_CLASS_TEXT)
+        editor.setRawInputType(InputType.TYPE_CLASS_TEXT)
         editor.setOnEditorActionListener { _, action, _ ->
             if( action == EditorInfo.IME_ACTION_DONE )
                 sendBtn.performClick()
