@@ -49,11 +49,11 @@ class Bender(var status: Status = Status.NORMAL, var question: Question = Questi
     enum class Question(val question: String, val invalid: String, val answers: List<String>) {
         NAME("Как меня зовут?", "Имя должно начинаться с заглавной буквы", listOf("бендер", "bender")) {
             override fun nextQuestion(): Question = PROFESSION
-            override fun validate(answer: String): Boolean = answer.first().isUpperCase()
+            override fun validate(answer: String): Boolean = answer.isNotEmpty() && answer.first().isUpperCase()
         },
         PROFESSION("Назови мою профессию?", "Профессия должна начинаться со строчной буквы", listOf("сгибальщик", "bender")) {
             override fun nextQuestion(): Question = MATERIAL
-            override fun validate(answer: String): Boolean = answer.first().isLowerCase()
+            override fun validate(answer: String): Boolean = answer.isNotEmpty() && answer.first().isLowerCase()
         },
         MATERIAL("Из чего я сделан?", "Материал не должен содержать цифр", listOf("металл", "дерево", "metal", "iron", "wood")) {
             override fun nextQuestion(): Question = BDAY
