@@ -4,12 +4,11 @@ import android.graphics.ColorFilter
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
+import android.text.TextWatcher
 import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -18,11 +17,18 @@ import ru.skillbranch.devintensive.R
 import ru.skillbranch.devintensive.extensions.getThemeColor
 import ru.skillbranch.devintensive.models.Profile
 import ru.skillbranch.devintensive.viewmodels.ProfileViewModel
+import android.text.Editable
+
+
 
 class ProfileActivity : AppCompatActivity() {
 
     companion object {
         const val IS_EDIT_MODE = "IS_EDIT_MODE"
+        val REPO_REGEX = """https://(www\.)?github\.com/[a-zA-Z_0-9\-]+""".toRegex()
+        val REPO_EXCL = listOf( "enterprise","features","topics","collections","trending",
+            "events","marketplace","pricing","nonprofit","customer-stories","security","login","join")
+
     }
 
     private lateinit var viewModel: ProfileViewModel
@@ -86,6 +92,30 @@ class ProfileActivity : AppCompatActivity() {
         btn_switch_theme.setOnClickListener {
             viewModel.switchTheme()
         }
+
+        et_repository.addTextChangedListener(object : TextWatcher {
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                val (_,isError) = validateRepo( s.toString().trim())
+                messageOnError( isError )
+            }
+
+            override fun afterTextChanged(editable: Editable) {
+                val (_,isError) = validateRepo( editable.toString().trim())
+                messageOnError( isError )
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                //
+            }
+
+            fun messageOnError(isError: Boolean){
+                wr_repository.error = when{
+                    isError -> "Невалидный адрес репозитория"
+                    else -> null
+                }
+            }
+        })
     }
 
     private fun showCurrentMode(isEdit: Boolean) {
@@ -126,14 +156,25 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun saveProfileInfo(){
+        val (repo,_) = validateRepo( et_repository.text.toString().trim())
         Profile(
             firstName = et_first_name.text.toString(),
             lastName = et_last_name.text.toString(),
             about = et_about.text.toString(),
-            repository = et_repository.text.toString()
+
+            repository = repo
         ).apply {
             viewModel.saveProfileData(this)
         }
+
+    }
+
+    private fun validateRepo(text: String): Pair<String, Boolean> {
+        if( text.isEmpty()) return text to false
+        if( text.matches( REPO_REGEX )
+            && REPO_EXCL.contains( text.substring(text.lastIndexOf('/')+1)).not())
+            return text to false
+        return "" to true
     }
 
 }
